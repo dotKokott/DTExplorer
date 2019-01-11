@@ -71,7 +71,7 @@ dropZone.addEventListener('drop', handleFileSelect, false)
 // UI
 //
 var block = document.getElementsByClassName('generated_block')[0]
-block.style.display = "none";
+// block.style.display = "none";
 // var display_zone = document.getElementById('display_zone')
 
 document.querySelectorAll('input[type=range]').forEach((el)=>{
