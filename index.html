@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <title>DroneTracer</title>
+    <style>
+        .center {
+            width: 80%;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .generated_block {
+            width: 45%;
+            float: right;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        #original_image {
+            width: 100%;
+        }
+
+        #drop_zone {
+            padding: 70px 20px;
+            border: solid 1px #aaaaaa;
+            color: #101010;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .preview_zone {
+            padding: 0px;
+            border: solid 1px #aaaaaa;
+            margin: 20px auto;
+        }
+
+        label {
+            margin: 30px auto 0 auto !important;
+        }
+
+        input[type=range] {
+            margin: 20px auto;
+            position: relative;
+        }
+
+        input[type=range]::after {
+            content: attr(value);
+            display: block;
+            position: absolute;
+            top: -10px;
+            right: 0;
+        }
+        /* The switch - the box around the slider */
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+          margin-top: 10px !important;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        /* The slider */
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 26px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+          border-radius: 34px;
+        }
+
+        .slider.round:before {
+          border-radius: 50%;
+        }
+    </style>
+    </head>
+    <body>
+        <div id="drop_zone" class="center">
+            <p><b>📂</b> Drag a files to this Drop Zone ... </p>
+            <img id="original_image" />
+        </div>
+        <div class="controls">
+            <label class="center">Illustration (centerline)</label>
+            <div class="center">
+                <label class="switch">
+                    <input id="checkbox_centerline" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <label class="center">Generate X Examples</label>
+        <input id="amount" class="center" type="range" min="1" max="100" value="4">
+
+        <button id="btn_more" onclick="generate()" class="center">GENERATE MORE</button>
+
+        <!-- <label class="center">Blur (kernel)</label>
+        <input id="range_blur" class="center" type="range" min="1" max="8" value="3">
+
+        <label class="center">Hysteresis High Threshold (%)</label>
+        <input id="range_hthreshold" class="center" type="range" min="1" max="100" value="60">
+
+        <label class="center">Hysteresis Low Threshold (%)</label>
+        <input id="range_lthreshold" class="center" type="range" min="1" max="100" value="10">
+
+        <label class="center">Concat Distance (%)</label>
+        <input id="range_distance" class="center" type="range" min="0" max="100" value="2">
+
+        <label class="center">Dilation radius (only on illustrations)</label>
+        <input id="range_dilation" class="center" type="range" min="1" max="20" value="4">
+
+        <label class="center">Smooth (Simplify)</label>
+        <input id="range_smooth" class="center" type="range" min="0" max="50" value="12">         -->        
+        <div class="generated_block">
+            <span></span>
+            <div class="preview_zone"></div>               
+        </div>
+
+        <script src="./lib/DroneTracer.min.js"></script>
+        <script src="./lib/helpers.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>
