@@ -7,7 +7,8 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
   alert('The File APIs are not fully supported in this browser.')
 }
 
-
+var inp = document.getElementById("get-files");
+inp.addEventListener('change', handleFiles, false);
 
 /*
  *     ____  ____   __  ____    ____  __  __    ____
@@ -17,6 +18,16 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
  *
  */
 var currentFile;
+
+function handleFiles(e) {
+    for (i = 0; i < inp.files.length; i++) {
+        let file = inp.files[i];
+        
+        if(!file.type.match('image.*')) continue
+
+        tracerTransform(file, true);
+    }
+}
 
 function handleFileSelect(e) {
     // Prevent default behavior (Prevent file from being opened)
@@ -50,7 +61,7 @@ function generate() {
 
     var amount = document.getElementById('amount').value;
     for(var i = 0; i < amount; i++) {
-        tracerTransform(currentFile);
+        tracerTransform(currentFile, false);
     }
 }
 
@@ -104,18 +115,26 @@ var paintingConfig = {
     droneSwapTime: 300000,	// land, swap battery and paint can, takeoff, and resume painting [ms]
     droneTakeoffTime: 140000,	// max duration from drone takeoff to actual painting [ms]
     droneLandingTime: 90000,	// max time needed to stop painting and land [ms]
-    minimumImageSize: [350,350], // Min image size to be accepted
+    minimumImageSize: [50,50], // Min image size to be accepted
 }
 
 var tracer = new DroneTracer(paintingConfig)
 var uiParameters = tracer.uiParameters
 
-function tracerTransform(imagefile) {
-    var blurRadius = getRandomInt(1, 10); //Default 4
-    var treshold = getRandomInt(1, 100); //Default 50
+function tracerTransform(imagefile, useDefault) {
+    var blurRadius = 4
+    var treshold = 50
+    var colorTreshold = 45
+    var strokeWeight = 4
 
-    var colorTreshold = getRandomInt(0, 100) //Default 45
-    var strokeWeight = getRandomInt(1, 20) //Default 4
+    if(!useDefault) {
+        blurRadius = getRandomInt(1, 10); //Default 4
+        treshold = getRandomInt(1, 100); //Default 50
+    
+        colorTreshold = getRandomInt(0, 100) //Default 45
+        strokeWeight = getRandomInt(1, 20) //Default 4
+    }
+
 
     var cl = document.getElementById('checkbox_centerline').checked;
 
@@ -155,19 +174,15 @@ function tracerTransform(imagefile) {
             alert('SVG copied to clipboard.')
         }
         
-        // var total_distance = (dronePaint.counts.painting + dronePaint.counts.flying) / 1000.0;
-        // var total_time = total_distance * 2.0;
-
-        // var td_fixed = (total_distance).toFixed(2);
-        // var pd_fixed = (dronePaint.counts.painting / 1000.0).toFixed(2);
-        // var time_fixed = new Date(1000 * total_time).toISOString().substr(11, 8)
+        var source_image = dronePaint.sourceImage.name
+        new_display.innerText = `Source image: ${source_image} \n`
 
         var time = new Date(dronePaint.estimatedTime).toISOString().substr(11, 8);
 
         if(cl) {
-            new_display.innerText = `Color treshold: ${colorTreshold} \n Stroke weight: ${strokeWeight}`            
+            new_display.innerText += `Color treshold: ${colorTreshold} \n Stroke weight: ${strokeWeight}`            
         } else {
-            new_display.innerText = `Blur Radius: ${blurRadius} \n Treshold: ${treshold}`
+            new_display.innerText += `Blur Radius: ${blurRadius} \n Treshold: ${treshold}`
         }
         
         new_display.innerText += '\n \n';
