@@ -89,30 +89,37 @@ document.querySelectorAll('input[type=range]').forEach((el)=>{
  */
 // Painting wall configuration
 var paintingConfig = {
-  wallId: 1,
-  gpsLocation: [-99.134982,19.413494],
-  dimensions: [30.4, 22.07],
-  colors: ['#000000', '#eb340f', '#0f71eb'], // default [#000]
-  droneResolution: 0.1, // default 0.2
+    wallId: 'CT19-001',		// required | ID to identify the wall target
+    gpsLocation: [0,0],		// required | wall GPS coordinates [Latitude, Longitude]
+    wallSize: [33000, 50000],	// required | wall width [mm], wall height [mm] (33m x 50m)
+    canvasSize: [33000, 10000],	// required | canvas area size [mm] (33m x 10m)
+    canvasPosition: [0,10000],	// required | relative position of the canvas in the wall [mm]
+    colors: ['#000000'],		// list of available colors
+    strokeWeight: 100,		// drone paint stroke thickness [mm]
+    droneResolution: 200,		// drone resolution [mm]
+    dronePrecisionError: 150,	// drone positioning error margin [mm]
+    droneFlyingSpeed: 0.6,	// average drone flying speed [m/s]
+    droneFlightTime: 240000,	// duration of battery flying [ms]
+    droneDrawingTime: 84000,	// average continuous drawing time [ms]
+    droneSwapTime: 300000,	// land, swap battery and paint can, takeoff, and resume painting [ms]
+    droneTakeoffTime: 140000,	// max duration from drone takeoff to actual painting [ms]
+    droneLandingTime: 90000,	// max time needed to stop painting and land [ms]
+    minimumImageSize: [350,350], // Min image size to be accepted
 }
 
-var timer_id = 0
-// Instance of a drone tracer
 var tracer = new DroneTracer(paintingConfig)
+var uiParameters = tracer.uiParameters
 
 function tracerTransform(imagefile) {
+    var blurRadius = getRandomInt(1, 10); //Default 4
+    var treshold = getRandomInt(1, 100); //Default 50
 
-    var bk = getRandomInt(1, 8)*1.0;
-    var hht = getRandomInt(1, 100) * 1.0;
-    var hlt = getRandomInt(1, hht) * 1.0;
-    var cclf = getRandomInt(0, 100) * 1.0;
-    var tft = getRandomInt(0, 50) / 10.0;
-    var dr = getRandomInt(1, 20) * 1.0;
+    var colorTreshold = getRandomInt(0, 100) //Default 45
+    var strokeWeight = getRandomInt(1, 20) //Default 4
 
     var cl = document.getElementById('checkbox_centerline').checked;
-    timer_id++;
+
     var start = window.performance.now();
-    // Transform image into a flyable drone path
     tracer.transform(
       imagefile, // loaded File API
       (progress) => {
@@ -120,23 +127,15 @@ function tracerTransform(imagefile) {
           console.log(`progress ${progressStatus}%`)
       }, // log progress
       {
-        //random 1 8 3  
-        blurKernel: bk,
-        //random 1 100 60
-        hysteresisHighThreshold: hht,
-        //random 1 hysteresisHighThreshold 10
-        hysteresisLowThreshold: hlt,
-        //random 0 100 2
-        contrastConcatLengthFactor: cclf,
-        //random 0 50 12 smooth
-        traceFilterTolerance: tft,
-        //random 1 20 4
-        dilationRadius: dr,
+        blurKernel: blurRadius,
+        hysteresisHighThreshold: treshold,
+        binaryTreshold: colorTreshold,
+        dilationRadius: strokeWeight,
 
-        centerline: cl,
-        drone: {
-            minimunDistance: 10
-        }
+        centerline: cl
+        // drone: {
+        //     minimunDistance: 10
+        // }
       }
     ).then( (dronePaint) => {
         var end = window.performance.now();
@@ -156,27 +155,28 @@ function tracerTransform(imagefile) {
             alert('SVG copied to clipboard.')
         }
         
-        var total_distance = (dronePaint.counts.painting + dronePaint.counts.flying) / 1000.0;
-        var total_time = total_distance * 2.0;
+        // var total_distance = (dronePaint.counts.painting + dronePaint.counts.flying) / 1000.0;
+        // var total_time = total_distance * 2.0;
 
-        var td_fixed = (total_distance).toFixed(2);
-        var pd_fixed = (dronePaint.counts.painting / 1000.0).toFixed(2);
-        var time_fixed = new Date(1000 * total_time).toISOString().substr(11, 8)
+        // var td_fixed = (total_distance).toFixed(2);
+        // var pd_fixed = (dronePaint.counts.painting / 1000.0).toFixed(2);
+        // var time_fixed = new Date(1000 * total_time).toISOString().substr(11, 8)
+
+        var time = new Date(dronePaint.estimatedTime).toISOString().substr(11, 8);
 
         if(cl) {
-            new_display.innerText = `traceFilterTolerance: ${tft} \n dilationRadius: ${dr}`            
+            new_display.innerText = `Color treshold: ${colorTreshold} \n Stroke weight: ${strokeWeight}`            
         } else {
-            new_display.innerText = `blurKernel: ${bk} \n hysterisisLowTresh: ${hlt} hysterisisHighTresh: ${hht} \n contrastConcatLengthFactor: ${cclf} \n dilationRadius: ${dr}`
+            new_display.innerText = `Blur Radius: ${blurRadius} \n Treshold: ${treshold}`
         }
         
         new_display.innerText += '\n \n';
         new_display.innerText += `Trace time: ${trace_time}s \n`            
-        new_display.innerText += `Paint distance: ${pd_fixed}m \n Paint + Fly Distance: ${td_fixed}m \n Flying time (0.5m/sec): ${time_fixed}`;        
+        // new_display.innerText += `Paint distance: ${pd_fixed}m \n Paint + Fly Distance: ${td_fixed}m \n Flying time (0.5m/sec): ${time_fixed}`;        
+        new_display.innerText += `Estimated Painting time: ${time}`
 
         new_block.style.display = "block";
         block.parentNode.appendChild(new_block);
-        // preview_zone.parentNode.appendChild(new_display);
-        // display_zone.innerText = dronePaint.svgFile
     });
 
 }
