@@ -173,7 +173,13 @@ function tracerTransform(imagefile) {
         new_display.innerText += '\n \n';
         new_display.innerText += `Trace time: ${trace_time}s \n`            
         // new_display.innerText += `Paint distance: ${pd_fixed}m \n Paint + Fly Distance: ${td_fixed}m \n Flying time (0.5m/sec): ${time_fixed}`;        
-        new_display.innerText += `Estimated Painting time: ${time}`
+        new_display.innerText += `Estimated Painting time: ${time} \n`
+        
+        var canSwipes = Math.floor(dronePaint.estimations.paintingTime/dronePaint.paintingConfig.droneDrawingTime)        
+        new_display.innerText += `Can swipes: ${canSwipes} \n`
+
+        var batterySwipes = Math.floor(dronePaint.estimations.flyingTime/dronePaint.paintingConfig.droneFlightTime)
+        new_display.innerText += `Battery swipes: ${batterySwipes} \n`
 
         new_block.style.display = "block";
         block.parentNode.appendChild(new_block);
